@@ -11,6 +11,14 @@ def hello_world():
    
     #'<h1>Hello World!</h1>' # h1과tag가 만나면 tag의 기능만 캡쳐함
 
+@app.route('/about', methods=['GET', 'POST'])
+def about():
+    return render_template("about.html")
+
+@app.route('/articles', methods=['GET', 'POST'])
+def articles():
+    return render_template("articles.html")
+
 if __name__ == '__main__':
     app.run(port=5000)
 

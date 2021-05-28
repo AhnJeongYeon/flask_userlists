@@ -6,4 +6,4 @@ def Articles():
 
 
 # data = Articles()
-# print(data[0]['Article one'])
+# print(data[0]['title'])

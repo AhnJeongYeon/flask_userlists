@@ -2,41 +2,53 @@
 
 {% block body %}
 <div class="jumbotron">
-    <h1 class="display-4">ARTICLE</h1> 
-   <!--지워야됨-->
-    <h1>Example heading <p class="font-weight-bold"></p><span class="badge badge-secondary">New</span></h1>
-    <button type="button" class="btn btn-primary">
-      Notifications <span class="badge badge-light">4</span>
-    </button>
-    <span class="badge badge-pill badge-warning">Warning</span>
-    <span class="badge badge-pill badge-danger">Danger</span>
-    <div class="alert alert-primary" role="alert">
-      This is a primary alert—check it out!
-    </div>
-    <nav aria-label="...">
-      <ul class="pagination">
-        <li class="page-item disabled">
-          <a class="page-link" href="#" tabindex="-1">Previous</a>
-        </li>
-        <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item active">
-          <a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
-        </li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item">
-          <a class="page-link" href="#">Next</a>
-        </li>
-      </ul>
-    </nav>
-    <button type="button" class="close" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-    <!--지워야됨-->
-    <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
-    <hr class="my-4">
-    <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
+    <h1 class="display-4">ARTICLE</h1>
+    <p>
+      <!--전달한 html값은 2번씩하는 것임-->
+      <table>
+        
+        <thead>
+
+            <tr>
+                <th>ID</th>
+                <th>TITLE</th>
+                
+                <th>AUTHOR</th>
+                <th>DATE</th>
+                <th>EDIT</th>
+          
+            </tr>
+        </thead>
+        <tbody>
+          {% for article in articles %}
+
+          <td>교통비</td>
+                  <td>{{article['id']}}</td>
+                  <td>{{article['title']}}</td>
+                  
+                  <td>{{article['author']}}</td>
+                  <td>{{article['create_data']}}</td>
+                  <td> <a class="btn btn-warning" href="#" role="button">EDIT</a></td>
+                  <td> <a class="btn btn-danger" href="#" role="button">DELETE</a></td>
+                  
+          
+          {% endfor %}
+           
+        </tfoot>
+        <tr>
+          <th>ID</th>
+          <th>TITLE</th>
+          <th>DESCRIPTION</th>
+          <th>AUTHOR</th>
+          <th>DATE</th>
+          <th>EDIT</th>
+        </tr>
+
+	</table>
+  
+  
     <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
+    
   </div>
 {% endblock %}
-
 

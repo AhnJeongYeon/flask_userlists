@@ -1,5 +1,6 @@
 from os import name
 from flask import Flask , render_template
+from data import Articles
 
 app = Flask(__name__)
 app.debug = True
@@ -17,7 +18,9 @@ def about():
 
 @app.route('/articles', methods=['GET', 'POST'])
 def articles():
-    return render_template("articles.html")
+    articles = Articles()
+    return render_template( "articles.html", articles = articles )
+
 
 if __name__ == '__main__':
     app.run(port=5000)

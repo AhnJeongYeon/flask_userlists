@@ -18,14 +18,39 @@ app.debug = True
 
 @app.route('/register', methods = ['GET', 'POST'])
 def register():
-    name = request.form['name']
-    email = request.form['email']
-    password = request.form['password']
-    password_1 = sha256_crypt.encrypt("1234")
-    print(sha256_crypt.verify("1234", password_1))
-    print(name, email, password)
-    return "SUCCESS"
+    if request.method == 'POST':
+        
 
+        name = request.form['name']
+        email = request.form['email']
+        username = request.form['username']
+        password = request.form['password']
+        password = sha256_crypt.encrypt(password)
+        # print(sha256_crypt.verify("1234", password_1))
+        # print(name, email, password)
+        sql = f"SELECT email FROM users WHERE email = '{email}'"
+        cur.execute(sql)
+        db.commit()
+        user_email = cur.fetchone()
+        print(user_email)
+        if user_email == None:
+
+            query = f"INSERT INTO users (name, email, username, password) VALUES ('{name}', '{email}', '{username}', '{password}')"
+
+            cur.execute(query)
+            db.commit()
+
+            return "SUCCESS"
+        else : 
+            return redirect('/register')
+    else :
+        return render_template('register.html')
+@app.route('/login', methods = ['GET','POST'])
+def login():
+    if request.method == 'POST':
+        return "SUCCESS"
+    else :
+        return render_template('login.html')
 
 @app.route('/', methods=['GET', 'POST']) # 경로(그 쪽 경로에 입장하면 실행)/로그인,관리자OX
 def hello_world():

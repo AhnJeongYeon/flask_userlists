@@ -1,7 +1,8 @@
-from flask import Flask , render_template, redirect, request
+from flask import Flask , render_template, redirect, request, session
 from data import Articles
 import pymysql
 from passlib.hash import sha256_crypt
+from functools import wraps
 
 db = pymysql.connect(
             host='localhost', 
@@ -15,6 +16,21 @@ cur = db.cursor()
 
 app = Flask(__name__)
 app.debug = True
+
+def is_loged_in(f):
+    @wraps(f)
+    def _wraps(*args, **kwargs) :
+        if 'is_loged' in session :
+            query = f"select username from users where email = '{session['email']}'"
+            cur.execute(query)
+            db.commit()
+            user = cur.fetchone()
+            # print(user)
+            user_name = user[0]
+            return f(*args, **kwargs)
+        else :
+            return redirect('/login')
+    return _wraps
 
 @app.route('/register', methods = ['GET', 'POST'])
 def register():
@@ -40,7 +56,7 @@ def register():
             cur.execute(query)
             db.commit()
 
-            return "SUCCESS"
+            return redirect('/login')
         else : 
             return redirect('/register')
     else :
@@ -48,21 +64,50 @@ def register():
 @app.route('/login', methods = ['GET','POST'])
 def login():
     if request.method == 'POST':
-        return "SUCCESS"
+        email = request.form['email']
+        password = request.form['password']
+        print(email, password)
+
+        query = f"SELECT * FROM users WHERE email = '{email}';"
+        cur.execute(query)
+        db.commit()
+        user = cur.fetchone()
+        print(user)
+
+        if user == None:
+            return redirect('/login')
+        else :
+            if sha256_crypt.verify(password, user[4]):
+                session['is_loged'] = True
+                session['email'] = user[2]
+                session['username'] = user[3]
+                print(session)
+                return redirect('/')
+            else :
+                return redirect('/login')
+
+        
     else :
-        return render_template('login.html')
+        return render_template('/login.html')
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/login')
 
 @app.route('/', methods=['GET', 'POST']) # 경로(그 쪽 경로에 입장하면 실행)/로그인,관리자OX
+@is_loged_in
 def hello_world():
-    return render_template('home.html', name="안정연") # 섞는 게 가능
+    return render_template('home.html', user_name = session['username']) # 섞는 게 가능
    
     #'<h1>Hello World!</h1>' # h1과tag가 만나면 tag의 기능만 캡쳐함
 
 @app.route('/about', methods=['GET', 'POST'])
+@is_loged_in
 def about():
-    return render_template("about.html")
+    return render_template("about.html", user_name = session['username'])
 
 @app.route('/articles', methods=['GET', 'POST'])
+@is_loged_in
 def articles():
     # articles = Articles()
 
@@ -75,7 +120,7 @@ def articles():
     articles = cur.fetchall()
 
     print(articles)
-    return render_template( "articles.html", articles = articles )
+    return render_template( "articles.html", articles = articles , user_name = session['username'])
 
 
 @app.route('/article/<id>', methods=['GET', 'POST'])
@@ -99,7 +144,7 @@ def article(id):
     if article **None:
         return redirect('/articles')
     else:
-        return render_template('article.html', article = article )
+        return render_template('article.html', article = article, user_name = session['username'] )
 
 
 @app.route('/article/<id>/delete')
@@ -137,9 +182,10 @@ def add_articles():
         return redirect("/articles")
         
     else :
-        return render_template("add_article.html")
+        return render_template("add_article.html", user_name = session['username'])
 
 @app.route("/article/<id>/edit", methods = ['GET','POST'])
+@is_loged_in
 
 def edit_article(id):
     if request.method == 'POST':
@@ -171,15 +217,17 @@ def edit_article(id):
 
         article = cur.fetchone()
 
-        return render_template('edit_article.html', article = article)
-        
+        return render_template('edit_article.html', article = article, user_name = session['username'])
 
-        
+       
 
 if __name__ == '__main__':
+    app.secret_key = "gangnamStyle"
     app.run(port=5000)
+    
 
-# 서버 띄우기 GET 방식으로 Enter만 치는 것.
+# 서버 띄우기 GET 방식으로 Enter만 치는 것
+
 
 
 
